@@ -172,13 +172,3 @@ pyrightconfig.json
 # PyCharm project folder (was previously excluded piece-by-piece above; this covers it fully)
 .idea/
 *.iml
-
-# Datasets (too large for git — keep local)
-data/
-
-# YOLO / Ultralytics training outputs
-runs/
-weights/
-*.pt
-*.onnx
-*.pth
