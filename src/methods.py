@@ -68,3 +68,11 @@ class Methods:
         # return the result
         return data
 
+    # following method will help me to get labels 
+    def get_labels(self, path):
+        labels = []
+
+        for filename in os.listdir(path):
+            labels.append(filename)
+
+        return labels
