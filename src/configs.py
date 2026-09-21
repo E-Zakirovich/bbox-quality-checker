@@ -9,6 +9,7 @@ for other fils to usage.
 weights_path = "./weights/best.pt"
 images_path = "./data/images"
 labels_path = "./data/labels"
-predictions_path = "./outputs/predictions"
+predictions_images_path = "./outputs/predictions/images"
+predictions_labels_path = "./outputs/predictions/labels"
 comparisons_path = "./outputs/comparisons"
 statistics_path = "./outputs/predictions"
