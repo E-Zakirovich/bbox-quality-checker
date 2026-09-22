@@ -8,8 +8,8 @@ data to find IoU.
 """
 
 # import libraries 
-from pathlib import Path
 import os
+from ultralytics import YOLO
 
 class Methods:
 
@@ -92,4 +92,50 @@ class Methods:
 
             # string format of variables 
             string_format_of_variable = " ".join(variables)
+
+            # store the file
             file.write(f"{id} {string_format_of_variable}")
+
+    # predictor method
+    def run_the_model(self, model : YOLO):
+
+        # i am going to get list of file names
+        image_names = self.get_labels(self.images_path)
+
+        # reach each file and predict it with the model
+        for file in image_names:
+
+            # get to full path with os library in order to avoid bugs related to paths
+            full_img_path = os.path.join(self.images_path, file)
+
+            # run the model
+            results = model.predict(
+                source = full_img_path,
+                conf = 0.25,
+                verbose = False
+            )
+
+            if len(results) == 0:
+                print(f"Skipping {file} — no results (possibly corrupted image)")
+                continue
+
+            # get single output
+            result = results[0]
+
+            for box in result.boxes:
+                # get the variables 
+                id = int(box.cls[0].item())
+                xc, yc, w, h = box.xywhn[0].tolist()
+
+                # it is time to make dictionary
+                bbox = {
+                    "id" : str(id),
+                    "variables" : [xc, yc, w, h]
+                }
+
+                # get the labels name
+                filename = os.path.splitext(file)[0] + ".txt"
+
+                # write the data to predictions folder 
+                self.write(bbox, self.predictions_labels_path, filename)
+
