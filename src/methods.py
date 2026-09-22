@@ -78,5 +78,18 @@ class Methods:
         return data
 
     # following method can get a data as a list and will make create new file and store it as txt 
-    def write(self, data : list, path : str):
-        ...
+    def write(self, bbox : dict, path : str, filename : str):
+
+        # I better get ful path in order to avoid bugs related to folders
+        full_path = os.path.join(path, filename)
+
+        # open the folder 
+        with open(full_path, "w", encoding = "utf-8") as file:
+            # get variables 
+            id = bbox["id"]
+            variables = bbox["variables"]
+            variables = [str(i) for i in variables]
+
+            # string format of variables 
+            string_format_of_variable = " ".join(variables)
+            file.write(f"{id} {string_format_of_variable}")
