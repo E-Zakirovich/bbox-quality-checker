@@ -13,16 +13,12 @@ method = Methods(get.weights_path, get.images_path, get.labels_path, get.predict
 
 def run_main():
 
-    d = method.get_labels(
-        get.labels_path
-    )
+    data = {
+        "id" : 0,
+        "variables" : [1, 2, 3, 4]
+    }
 
-
-
-    txt = method.read_txt(d)
-
-    for i in txt:
-        print(i)
+    method.write(data, get.predictions_labels_path, "3.txt")
 
 
 if __name__ == "__main__":
