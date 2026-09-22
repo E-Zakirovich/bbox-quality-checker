@@ -139,3 +139,26 @@ class Methods:
                 # write the data to predictions folder 
                 self.write(bbox, self.predictions_labels_path, filename)
 
+    # calculate intersection over union
+    def iou(self, groundtruth : dict, predictions : dict):
+
+        # first get the cordinates of intersection
+        xA = max(groundtruth["variables"][0], predictions["variables"][0])
+        yA = max(groundtruth["variables"][1], predictions["variables"][1])
+        xB = min(groundtruth["variables"][2], predictions["variables"][2])
+        yB = min(groundtruth["variables"][3], predictions["variables"][3])
+
+        # get the size
+        x_intersection = max(0, xB - xA)
+        y_intersection = max(0, yB - yA)
+        intersection_area = x_intersection * y_intersection
+
+        # get the area of bboxes 
+        area_of_a = (groundtruth["variables"][2] - groundtruth["variables"][0]) * (groundtruth["variables"][3] - groundtruth["variables"][1])      
+        area_of_b = (predictions["variables"][2] - predictions["variables"][0]) * (predictions["variables"][3] - predictions["variables"][1]) 
+
+        # calculate intersection over union
+        intersection_over_union = intersection_area / (area_of_a + area_of_b - intersection_area)    
+
+        # return the result
+        return intersection_over_union 

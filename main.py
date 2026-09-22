@@ -14,14 +14,17 @@ method = Methods(get.weights_path, get.images_path, get.labels_path, get.predict
 
 def run_main():
 
-    data = {
-        "id" : 0,
-        "variables" : [1, 2, 3, 4]
+    ground_truth = {
+        "variables" : [50, 50, 150, 150]
     }
 
-    model = YOLO(get.weights_path)
+    prediction = {
+        "variables" : [70, 80, 170, 180]
+    }
 
-    method.run_the_model(model)
+    a = method.iou(ground_truth, prediction)
+
+    print(a)
 
 
 if __name__ == "__main__":
