@@ -14,17 +14,42 @@ method = Methods(get.weights_path, get.images_path, get.labels_path, get.predict
 
 def run_main():
 
-    ground_truth = {
-        "variables" : [50, 50, 150, 150]
-    }
+    # run the model
+    print("I am model")
+    my_model = YOLO(get.weights_path)
 
-    prediction = {
-        "variables" : [70, 80, 170, 180]
-    }
+    print("I am running it")
 
-    a = method.iou(ground_truth, prediction)
+    method.run_the_model(my_model)
 
-    print(a)
+    print("get labels and its data from dataset")
+    # get labels and its data from dataset
+    actual_labels = method.get_labels(get.labels_path)
+    actual_labels_data = method.read_txt(actual_labels, get.labels_path)
+
+    print("get predicted data and its labels")
+    # get predicted data and its labels
+    predicted_labels = method.get_labels(get.predictions_labels_path)
+    predicted_labels_data = method.read_txt(predicted_labels, get.predictions_labels_path)
+
+    l = len(actual_labels)
+
+
+
+    IOU = []
+    ids = []
+    print("IOU")
+
+    for i in range(l):
+        IOU.append(method.iou(actual_labels_data[i], predicted_labels_data[i]))
+        ids.append(actual_labels_data[i]["id"])
+
+    print("make csv")
+    method.make_csv(IOU, ids, actual_labels, get.statistics_path)
+
+    print("done ")
+
+    
 
 
 if __name__ == "__main__":
