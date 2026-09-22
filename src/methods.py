@@ -32,6 +32,15 @@ class Methods:
         self.comparisons_path = comparisons_path
         self.statistics_path = statistics_path
 
+    # following method will help me to get labels 
+    def get_labels(self, path):
+        labels = []
+
+        for filename in os.listdir(path):
+            labels.append(filename)
+
+        return labels
+
     # this method will help me to get the information from inside of txt files
     def read_txt(self, file_names):
         # store the data to somewhere
@@ -68,11 +77,6 @@ class Methods:
         # return the result
         return data
 
-    # following method will help me to get labels 
-    def get_labels(self, path):
-        labels = []
-
-        for filename in os.listdir(path):
-            labels.append(filename)
-
-        return labels
+    # following method can get a data as a list and will make create new file and store it as txt 
+    def write(self, data : list, path : str):
+        ...
