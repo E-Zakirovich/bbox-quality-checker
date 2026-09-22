@@ -10,6 +10,7 @@ data to find IoU.
 # import libraries 
 import os
 from ultralytics import YOLO
+import csv
 
 class Methods:
 
@@ -39,10 +40,10 @@ class Methods:
         for filename in os.listdir(path):
             labels.append(filename)
 
-        return labels
+        return sorted(labels)
 
     # this method will help me to get the information from inside of txt files
-    def read_txt(self, file_names):
+    def read_txt(self, file_names, source_path):
         # store the data to somewhere
         data = []
 
@@ -52,7 +53,7 @@ class Methods:
             # I need a dictionary in order to store the data of each file
             file_data = {}
 
-            full_file_path = os.path.join(self.labels_path, filename)
+            full_file_path = os.path.join(source_path, filename)
 
             # it is time to read files inside of file path
             with open(full_file_path, "r", encoding = "utf-8") as file:
@@ -140,25 +141,73 @@ class Methods:
                 self.write(bbox, self.predictions_labels_path, filename)
 
     # calculate intersection over union
-    def iou(self, groundtruth : dict, predictions : dict):
+    def iou(self, groundtruth: dict, predictions: dict):
 
-        # first get the cordinates of intersection
-        xA = max(groundtruth["variables"][0], predictions["variables"][0])
-        yA = max(groundtruth["variables"][1], predictions["variables"][1])
-        xB = min(groundtruth["variables"][2], predictions["variables"][2])
-        yB = min(groundtruth["variables"][3], predictions["variables"][3])
+        # convert YOLO [xc, yc, w, h] -> corners [x1, y1, x2, y2] for ground truth
+        gt_xc, gt_yc, gt_w, gt_h = map(float, groundtruth["variables"])
+        gt_x1 = gt_xc - gt_w / 2
+        gt_y1 = gt_yc - gt_h / 2
+        gt_x2 = gt_xc + gt_w / 2
+        gt_y2 = gt_yc + gt_h / 2
 
-        # get the size
+        # convert YOLO [xc, yc, w, h] -> corners [x1, y1, x2, y2] for prediction
+        pr_xc, pr_yc, pr_w, pr_h = map(float, predictions["variables"])
+        pr_x1 = pr_xc - pr_w / 2
+        pr_y1 = pr_yc - pr_h / 2
+        pr_x2 = pr_xc + pr_w / 2
+        pr_y2 = pr_yc + pr_h / 2
+
+        # intersection coordinates
+        xA = max(gt_x1, pr_x1)
+        yA = max(gt_y1, pr_y1)
+        xB = min(gt_x2, pr_x2)
+        yB = min(gt_y2, pr_y2)
+
+        # intersection area
         x_intersection = max(0, xB - xA)
         y_intersection = max(0, yB - yA)
         intersection_area = x_intersection * y_intersection
 
-        # get the area of bboxes 
-        area_of_a = (groundtruth["variables"][2] - groundtruth["variables"][0]) * (groundtruth["variables"][3] - groundtruth["variables"][1])      
-        area_of_b = (predictions["variables"][2] - predictions["variables"][0]) * (predictions["variables"][3] - predictions["variables"][1]) 
+        # area of each box
+        area_of_a = (gt_x2 - gt_x1) * (gt_y2 - gt_y1)
+        area_of_b = (pr_x2 - pr_x1) * (pr_y2 - pr_y1)
 
-        # calculate intersection over union
-        intersection_over_union = intersection_area / (area_of_a + area_of_b - intersection_area)    
+        # IoU
+        union = area_of_a + area_of_b - intersection_area
+        intersection_over_union = intersection_area / max(1e-6, union)
 
-        # return the result
-        return intersection_over_union 
+        return intersection_over_union
+
+    # csv maker
+    def make_csv(self, iou : list[float], id : list[str], label : list[str], destination : str):
+
+        # headers
+        headers = ["FILENAME", "ID", "IoU"]
+
+        # a list to store the data
+        data = [
+
+        ]
+
+        l = len(iou)
+
+        for i in range(l):
+            row = []
+
+            row.append(label[i])
+            row.append(id[i])
+            row.append(iou[i])
+
+            data.append(row)
+
+        file_name = "results.csv" 
+        full_path = os.path.join(destination, file_name)
+
+        with open(full_path, "w", newline = "", encoding = "utf - 8") as file:
+            writer = csv.writer(file)
+
+            #write headers
+            writer.writerow(headers)
+
+            #write all data rows
+            writer.writerows(data)
