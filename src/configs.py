@@ -13,3 +13,7 @@ predictions_images_path = "./outputs/predictions/images"
 predictions_labels_path = "./outputs/predictions/labels"
 comparisons_path = "./outputs/comparisons"
 statistics_path = "./outputs/predictions"
+
+# YOLO model params
+conf = 0.25 
+verbose = False
