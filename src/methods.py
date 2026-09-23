@@ -11,6 +11,7 @@ data to find IoU.
 import os
 from ultralytics import YOLO
 import csv
+from PIL import Image, ImageDraw
 
 class Methods:
 
@@ -211,3 +212,40 @@ class Methods:
 
             #write all data rows
             writer.writerows(data)
+
+    def draw_rectangle(self,
+              groundtruth: dict, 
+              predictions: dict, 
+              image_filename: str, 
+              store_dir: str, 
+              src_data : str, 
+              iou_src : float
+            ):
+
+        full_img_path = os.path.join(src_data, image_filename)
+        img = Image.open(full_img_path).convert("RGB")
+        draw = ImageDraw.Draw(img)
+        img_w, img_h = img.size
+
+        # ground truth box (green)
+        gt_xc, gt_yc, gt_w, gt_h = map(float, groundtruth["variables"])
+        gt_x1 = (gt_xc - gt_w / 2) * img_w
+        gt_y1 = (gt_yc - gt_h / 2) * img_h
+        gt_x2 = (gt_xc + gt_w / 2) * img_w
+        gt_y2 = (gt_yc + gt_h / 2) * img_h
+        draw.rectangle([gt_x1, gt_y1, gt_x2, gt_y2], outline="green", width=3)
+        draw.text((gt_x1, gt_y1 - 15), "GT", fill="green")
+        draw.text((gt_x1, gt_y1 + 15), f"IoU: {iou_src}", fill="green")
+
+        # predicted box (red)
+        pr_xc, pr_yc, pr_w, pr_h = map(float, predictions["variables"])
+        pr_x1 = (pr_xc - pr_w / 2) * img_w
+        pr_y1 = (pr_yc - pr_h / 2) * img_h
+        pr_x2 = (pr_xc + pr_w / 2) * img_w
+        pr_y2 = (pr_yc + pr_h / 2) * img_h
+        draw.rectangle([pr_x1, pr_y1, pr_x2, pr_y2], outline="red", width=3)
+        draw.text((pr_x1, pr_y2 + 5), "Pred", fill="red")
+
+        os.makedirs(store_dir, exist_ok=True)
+        save_path = os.path.join(store_dir, image_filename)
+        img.save(save_path)
