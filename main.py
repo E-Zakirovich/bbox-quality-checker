@@ -24,6 +24,7 @@ def run_main():
 
     print("get labels and its data from dataset")
     # get labels and its data from dataset
+    actual_images_labels = method.get_labels(get.images_path)
     actual_labels = method.get_labels(get.labels_path)
     actual_labels_data = method.read_txt(actual_labels, get.labels_path)
 
@@ -41,8 +42,19 @@ def run_main():
     print("IOU")
 
     for i in range(l):
-        IOU.append(method.iou(actual_labels_data[i], predicted_labels_data[i]))
+        iou_value = method.iou(actual_labels_data[i], predicted_labels_data[i])
+        IOU.append(iou_value)
         ids.append(actual_labels_data[i]["id"])
+
+        # it is time to predict bbox
+        method.draw_rectangle(
+            actual_labels_data[i],
+            predicted_labels_data[i],
+            actual_images_labels[i],
+            get.comparisons_path,
+            get.images_path,
+            iou_value
+        )
 
     print("make csv")
     method.make_csv(IOU, ids, actual_labels, get.statistics_path)
